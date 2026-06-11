@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               Int               @id @default(autoincrement())
+  username         String?           @unique
+  email            String            @unique
+  googleId         String?           @unique
+  coins            Int               @default(0) // Saldo Koin
+  bio              String?           // Deskripsi profil Kreator
+  avatar           String?           // URL Foto Profil
+  
+  videos           Video[]           @relation("CreatorVideos")
+  likes            Like[]
+  comments         Comment[]
+  transactions     Transaction[]
+  unlockedVideos   UnlockedVideo[]
+  watchHistories   WatchHistory[]
+  genrePreferences UserGenrePreference[]
+  
+  createdAt        DateTime          @default(now())
+}
+
+model Video {
+  id          Int       @id @default(autoincrement())
+  creatorId   Int
+  creator     User      @relation("CreatorVideos", fields: [creatorId], references: [id])
+  
+  title       String
+  description String?
+  videoUrl    String
+  thumbnailUrl String?
+  
+  // Fitur Paywall
+  isVip       Boolean   @default(false)
+  price       Int       @default(0) // Hanya berlaku jika isVip = true
+  
+  // Fitur Kategori (Multi-Genre)
+  genres      String[]  @default([])
+
+  // Fitur Telemetri & FYP
+  views       Int       @default(0)
+
+  // Fitur Series (Multi-part)
+  seriesName  String?   // Opsional, misal "Miliarder Menyamar"
+  partNumber  Int?      // Opsional, misal 1, 2, 3
+  
+  // Relasi Interaksi
+  likes       Like[]
+  comments    Comment[]
+  unlocks     UnlockedVideo[]
+  histories   WatchHistory[]
+
+  createdAt   DateTime  @default(now())
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  videoId   Int
+  video     Video    @relation(fields: [videoId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, videoId]) // Satu user tidak bisa melike video yang sama 2x
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  videoId   Int
+  video     Video    @relation(fields: [videoId], references: [id])
+  text      String
+  createdAt DateTime @default(now())
+}
+
+// Menyimpan riwayat video berbayar yang sudah dibeli User (Akses Permanen)
+model UnlockedVideo {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  videoId    Int
+  video      Video    @relation(fields: [videoId], references: [id])
+  unlockedAt DateTime @default(now())
+
+  @@unique([userId, videoId]) // Satu user tidak bisa membeli video yang sama 2x
+}
+
+// Mencatat jejak tontonan pengguna
+model WatchHistory {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  videoId    Int
+  video      Video    @relation(fields: [videoId], references: [id])
+  watchedSec Int      @default(0) // Berhenti di detik ke berapa
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, videoId])
+}
+
+model UserGenrePreference {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  genre     String
+  score     Int      @default(0)
+
+  @@unique([userId, genre])
+}
+
+// Menyimpan riwayat Top Up dari Payment Gateway (Midtrans)
+model Transaction {
+  id         Int      @id @default(autoincrement())
+  orderId    String   @unique // ID dari Midtrans
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  amount     Int      // Uang Rupiah (Contoh: 15000)
+  coinAmount Int      // Koin yang didapat (Contoh: 100)
+  status     String   @default("PENDING") // PENDING, SUCCESS, FAILED
+  createdAt  DateTime @default(now())
+}
