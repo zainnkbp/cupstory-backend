@@ -156,7 +156,7 @@ passport.use(new GoogleStrategy({
         const file = req.files['thumbnail'][0];
         const fileName = `thumb_${Date.now()}_${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`;
         
-        const { data, error } = await supabase.storage.from('thumbnails').upload(fileName, file.buffer, {
+        const { data, error } = await supabase.storage.from('thumbnail').upload(fileName, file.buffer, {
           contentType: file.mimetype,
           upsert: false
         });
@@ -165,7 +165,7 @@ passport.use(new GoogleStrategy({
           console.error("Supabase Upload Error:", error);
           throw error;
         }
-        thumbnailUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/thumbnails/${fileName}`;
+        thumbnailUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/thumbnail/${fileName}`;
       }
       
       let parsedGenres = [];
