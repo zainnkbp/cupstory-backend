@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node producer.js",
-    "build": "npx prisma generate && npx prisma db push",
-    "postinstall": "npx prisma generate && npx prisma db push"
+    "build": "npx prisma generate && npx prisma db push"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
