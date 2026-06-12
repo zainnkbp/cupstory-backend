@@ -26,6 +26,10 @@ app.use(cors());
 app.use(express.json());
 app.use(passport.initialize());
 
+app.get('/', (req, res) => {
+  res.json({ status: 'OK', message: 'CupStory API is running on Vercel' });
+});
+
 // Mengekspos folder 'gallery' agar bisa diakses public via URL
 app.use('/gallery', express.static('gallery'));
 
