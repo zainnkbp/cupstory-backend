@@ -545,7 +545,5 @@ passport.use(new GoogleStrategy({
     }
   });
 
-  });
-
   // Vercel Serverless Export
   export default app;
