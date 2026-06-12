@@ -59,17 +59,6 @@ passport.use(new GoogleStrategy({
   }
 ));
 
-async function startAPI() {
-
-  // Auto-seed: Pastikan ada minimal 1 user (Creator) untuk di-test
-  let dummyUser = await prisma.user.findFirst();
-  if (!dummyUser) {
-    dummyUser = await prisma.user.create({
-      data: { username: 'fadlizainul', email: 'fadli@cupstory.com', coins: 0, bio: 'CupStory Founder' }
-    });
-    console.log(`👤 User awal berhasil dibuat: @${dummyUser.username} (ID: ${dummyUser.id})`);
-  }
-
   // ==========================================
   // 0. API AUTENTIKASI (OAUTH)
   // ==========================================
@@ -552,9 +541,7 @@ async function startAPI() {
     }
   });
 
-  app.listen(3000, () => {
-    console.log('🚀 API CupStory berjalan di http://localhost:3000');
   });
-}
 
-startAPI().catch(console.error);
+  // Vercel Serverless Export
+  export default app;

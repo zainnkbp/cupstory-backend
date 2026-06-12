@@ -4,7 +4,8 @@
   "main": "producer.js",
   "type": "module",
   "scripts": {
-    "start": "node producer.js"
+    "start": "node producer.js",
+    "build": "prisma generate && prisma db push"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
